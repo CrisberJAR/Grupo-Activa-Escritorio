@@ -1,4 +1,4 @@
-package com.crediactiva.util;
+package com.crediactiva.psw;
 
 import org.mindrot.jbcrypt.BCrypt;
 

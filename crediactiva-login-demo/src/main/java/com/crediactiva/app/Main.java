@@ -1,4 +1,4 @@
-package com.crediactiva;
+package com.crediactiva.app;
 
 import com.crediactiva.dao.UserDao;
 import com.crediactiva.model.User;

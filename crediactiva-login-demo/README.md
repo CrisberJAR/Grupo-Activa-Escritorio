@@ -23,12 +23,12 @@ Proyecto mínimo para:
 Tienes dos opciones:
 - **Opción A (desde este proyecto)**: Ejecuta
   ```bash
-  mvn -q -Dexec.mainClass=com.crediactiva.util.PasswordUtil exec:java
+  mvn -q -Dexec.mainClass=com.crediactiva.psw.PasswordUtil exec:java
   ```
   Escribe la contraseña (por ejemplo `Ander_123`) y copia el **Hash BCrypt** que aparece.
 - **Opción B (con argumentos)**:
   ```bash
-  mvn -q -Dexec.mainClass=com.crediactiva.util.PasswordUtil -Dexec.args="Ander_123" exec:java
+  mvn -q -Dexec.mainClass=com.crediactiva.psw.PasswordUtil -Dexec.args="Ander_123" exec:java
   ```
 
 Con el hash copiado, actualiza en MySQL:
@@ -59,13 +59,13 @@ db.pool.size=5
 ### Por consola (login en terminal)
 ```bash
 mvn -q clean package
-mvn -q -Dexec.mainClass=com.crediactiva.Main exec:java
+mvn -q -Dexec.mainClass=com.crediactiva.app.Main exec:java
 ```
 - Ingresa `Usuario` y `Contraseña` que existan en la tabla `usuario` (estado `ACTIVO`).
 
 ### UI Swing (ventana de login)
 ```bash
-mvn -q -Dexec.mainClass=com.crediactiva.Main -Dexec.args="swing" exec:java
+mvn -q -Dexec.mainClass=com.crediactiva.app.Main -Dexec.args="swing" exec:java
 ```
 - Aparecerá una ventana simple que valida usuario/contraseña contra MySQL.
 
@@ -82,8 +82,8 @@ java -jar target/crediactiva-login-demo-1.0.0-SNAPSHOT-shaded.jar swing
 - `com.crediactiva.dao.UserDao`: Consulta a MySQL y valida la contraseña con **BCrypt**.
 - `com.crediactiva.model.User`: POJO de usuario autenticado.
 - `com.crediactiva.ui.LoginFrame`: Ventana Swing con usuario/contraseña.
-- `com.crediactiva.Main`: Punto de entrada (consola por defecto, o `swing` como argumento).
-- `com.crediactiva.util.PasswordUtil`: Utilidad para generar hashes **BCrypt**.
+- `com.crediactiva.app.Main`: Punto de entrada (consola por defecto, o `swing` como argumento).
+- `com.crediactiva.psw.PasswordUtil`: Utilidad para generar hashes **BCrypt**.
 
 ## 5) Errores comunes
 - **`Communications link failure`**: Verifica IP/puerto, firewall, y que MySQL esté levantado.

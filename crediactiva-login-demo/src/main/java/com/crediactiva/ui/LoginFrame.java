@@ -2,6 +2,8 @@ package com.crediactiva.ui;
 
 import com.crediactiva.dao.UserDao;
 import com.crediactiva.model.User;
+import com.crediactiva.security.Role;
+import com.crediactiva.security.Session;
 
 import javax.swing.*;
 import java.awt.*;
@@ -55,9 +57,40 @@ public class LoginFrame extends JFrame {
 
         if (userOpt.isPresent()) {
             User user = userOpt.get();
-            JOptionPane.showMessageDialog(this, "Bienvenido " + user.getUsername() + " [" + user.getRol() + "]");
+
+            // Abrir ventana principal con sesión y rol correcto
+            abrirMainWindow(user);
+
         } else {
-            JOptionPane.showMessageDialog(this, "Credenciales inválidas o usuario inactivo", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Credenciales inválidas o usuario inactivo",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    /** Crea la sesión y abre la ventana principal según el rol del usuario. */
+    private void abrirMainWindow(User user) {
+        Role role = mapRole(user.getRol()); // "ADMIN" | "ASESOR" | "CLIENTE"
+        if (role == null) {
+            JOptionPane.showMessageDialog(this,
+                    "El rol del usuario no es válido: " + user.getRol(),
+                    "Error de rol", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        Session session = new Session(user.getId(), user.getUsername(), role);
+
+        // Mostrar MainWindow y cerrar el login
+        SwingUtilities.invokeLater(() -> new MainWindow(session).setVisible(true));
+        dispose();
+    }
+
+    /** Mapea el String de la BD al enum Role de forma segura. */
+    private Role mapRole(String rolStr) {
+        if (rolStr == null) return null;
+        try {
+            return Role.valueOf(rolStr.trim().toUpperCase()); // admite "admin", "ASESOR", etc.
+        } catch (IllegalArgumentException ex) {
+            return null;
         }
     }
 }
