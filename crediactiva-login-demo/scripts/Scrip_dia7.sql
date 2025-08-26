@@ -1,0 +1,1 @@
+-- Archivo no encontrado en el entorno, agregue aquí el SQL del Día 7.
