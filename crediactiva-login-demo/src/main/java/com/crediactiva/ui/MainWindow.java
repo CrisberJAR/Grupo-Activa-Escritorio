@@ -2,6 +2,9 @@ package com.crediactiva.ui;
 
 import com.crediactiva.security.Role;
 import com.crediactiva.security.Session;
+import com.crediactiva.dao.AsesorDao;
+import com.crediactiva.ui.solicitudes.AdminSolicitudesPanel;
+import com.crediactiva.ui.solicitudes.SolicitudesPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -82,6 +85,21 @@ public class MainWindow extends JFrame {
         return side;
     }
 
+    private JLabel sectionTitle(String text) {
+        JLabel t = new JLabel(text);
+        t.setBorder(BorderFactory.createEmptyBorder(0,0,6,0));
+        t.setFont(t.getFont().deriveFont(Font.BOLD, 12f));
+        return t;
+    }
+
+    private JButton btnWide(String text, Runnable action) {
+        JButton b = new JButton(text);
+        b.setAlignmentX(Component.LEFT_ALIGNMENT);
+        b.setMaximumSize(new Dimension(Integer.MAX_VALUE, 28));
+        b.addActionListener(e -> action.run());
+        return b;
+    }
+
     private JButton btn(String text, Runnable action) {
         JButton b = new JButton(text);
         b.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -90,19 +108,39 @@ public class MainWindow extends JFrame {
     }
 
     private JComponent buildContent() {
+        // Siempre disponibles como placeholders por ahora
         content.add(placeholder("Dashboard / Resumen"), "dashboard");
         content.add(placeholder("Clientes (lista + filtros)"), "clientes");
-        content.add(placeholder("Solicitudes (pendientes / aprobar / rechazar)"), "solicitudes");
         content.add(placeholder("Préstamos (activos / finalizados)"), "prestamos");
         content.add(placeholder("Reportes de cobros / por asesor / por rango"), "reportes");
-        content.add(placeholder("Gestión de usuarios (solo Admin)"), "usuarios");
+        content.add(new UsersPanel(this), "usuarios");
         content.add(placeholder("Mi Cronograma (Cliente)"), "mi_cronograma");
+
+        // --- Solicitudes según rol ---
+        if (session.getRole() == Role.ADMIN) {
+            content.add(new AdminSolicitudesPanel(), "solicitudes");
+        } else if (session.getRole() == Role.ASESOR) {
+            // Usar el ID REAL del asesor (mapeo usuario -> asesor) para respetar la FK solicitud.asesor_id
+            Integer asesorId = new AsesorDao().findIdByUsuarioId(session.getUserId());
+            if (asesorId == null) {
+                content.add(placeholder(
+                        "No se encontró registro de ASESOR para este usuario.\n" +
+                                "Pide a un administrador que complete la ficha del asesor."), "solicitudes");
+            } else {
+                content.add(new SolicitudesPanel(this, asesorId), "solicitudes");
+            }
+        } else {
+            // CLIENTE u otros → placeholder
+            content.add(placeholder("Solicitudes (no disponible para este rol)"), "solicitudes");
+        }
+        // --- fin solicitudes por rol ---
+
         return content;
     }
 
     private JPanel placeholder(String title) {
         JPanel p = new JPanel(new BorderLayout());
-        JLabel l = new JLabel(title, SwingConstants.CENTER);
+        JLabel l = new JLabel("<html><div style='text-align:center;'>" + title + "</div></html>", SwingConstants.CENTER);
         l.setFont(l.getFont().deriveFont(Font.PLAIN, 16f));
         p.add(l, BorderLayout.CENTER);
         return p;
